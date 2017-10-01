@@ -35,7 +35,6 @@ def main():
     #print(img1)
 
     #print(imgs)
-    print(imgs.dtype)
 
     inp1 = Variable((preprocess(img1)).unsqueeze_(0))
     # inp1.byte()
@@ -44,8 +43,10 @@ def main():
 
     inputs = (inp1, inp2)
     print(inputs.size())
+
     outputs = fup.forward(inps)
     print(outputs.size())
+
     img_out = outputs.data.numpy()[0].reshape(h, w, 3)
     print(img_out.shape, img1.shape)
     cv2.imshow("Output", img_out)
