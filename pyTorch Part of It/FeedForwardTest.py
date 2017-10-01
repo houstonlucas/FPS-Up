@@ -112,10 +112,11 @@ def prepare_scatter_plot(input_values, output_values, mark='o', color='b', ax = 
 class Net(nn.Module):
     def __init__(self):
         super(Net, self).__init__()
+        hidden_size = 5
 
         # an affine operation: y = Wx + b
-        self.fc1 = nn.Linear(2, 20)
-        self.fc2 = nn.Linear(20, 1)
+        self.fc1 = nn.Linear(2, hidden_size)
+        self.fc2 = nn.Linear(hidden_size, 1)
 
     def forward(self, x):
         h1 = self.fc1(x)
