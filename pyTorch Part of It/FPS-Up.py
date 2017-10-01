@@ -1,18 +1,31 @@
 from __future__ import print_function
 import torch
 from torch.autograd import Variable
+from torchvision import models, transforms
 import torch.nn as nn
 import torch.nn.functional as F
 import numpy as np
+
+from PIL import Image
 
 import cv2
 
 import matplotlib.pyplot as plt
 
+normalize = transforms.Normalize(
+   mean=[0.485, 0.456, 0.406],
+   std=[0.229, 0.224, 0.225]
+)
+preprocess = transforms.Compose([
+   transforms.Scale(256),
+   transforms.CenterCrop(224),
+   transforms.ToTensor(),
+   normalize
+])
 
 def main():
     frames = get_video_frames("../small.mp4")
-    h, w, _ = frames[0].shape
+    h, w = frames[0].size
     fup = FPS_UP(h, w)
 
     dtype = torch.FloatTensor
@@ -21,18 +34,15 @@ def main():
     img2 = frames[2]
     #print(img1)
 
-    imgs = np.stack((img1, img2), 0)
     #print(imgs)
     print(imgs.dtype)
 
-    inp1 = Variable(torch.from_numpy(img1).type(dtype))
+    inp1 = Variable((preprocess(img1)).unsqueeze_(0))
     # inp1.byte()
-    inp2 = Variable(torch.from_numpy(img2).type(dtype))
+    inp2 = Variable((preprocess(img2)).unsqueeze_(0))
     # inp2.byte()
 
-    inps = (inp1, inp2)
-
-    inputs = Variable(torch.from_numpy(imgs).type(dtype))
+    inputs = (inp1, inp2)
     print(inputs.size())
     outputs = fup.forward(inps)
     print(outputs.size())
@@ -78,7 +88,11 @@ def get_video_frames(file_name):
 
     r, frame = cap.read()
     while r:
-        frames.append(frame)
+        temp_image = Image.fromarray(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
+        # img_tensor = preprocess(temp_image)
+        # img_tensor.unsqueeze_(0)
+        # img_variable = Variable(img_tensor)
+        frames.append(temp_image)
         r, frame = cap.read()
 
     return frames
