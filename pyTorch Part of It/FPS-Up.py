@@ -4,6 +4,8 @@ from torch.autograd import Variable
 import torch.nn as nn
 import torch.nn.functional as F
 import numpy as np
+from PIL import Image
+from torchvision import models, transforms
 
 import cv2
 
@@ -21,20 +23,14 @@ def main():
     img2 = frames[2]
     #print(img1)
 
-    imgs = np.stack((img1, img2), 0)
-    #print(imgs)
-    print(imgs.dtype)
-
     inp1 = Variable(torch.from_numpy(img1).type(dtype))
     # inp1.byte()
     inp2 = Variable(torch.from_numpy(img2).type(dtype))
     # inp2.byte()
 
-    inps = (inp1, inp2)
-
-    inputs = Variable(torch.from_numpy(imgs).type(dtype))
+    inputs = (inp1, inp2)
     print(inputs.size())
-    outputs = fup.forward(inps)
+    outputs = fup.forward(inputs)
     print(outputs.size())
     img_out = outputs.data.numpy()[0].reshape(h, w, 3)
     print(img_out.shape, img1.shape)
