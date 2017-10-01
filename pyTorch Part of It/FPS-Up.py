@@ -13,20 +13,24 @@ import matplotlib.pyplot as plt
 def main():
     frames = get_video_frames("../small.mp4")
     h, w, _ = frames[0].shape
-    fup = FPS_UP(h,w)
+    fup = FPS_UP(h, w)
 
     dtype = torch.FloatTensor
 
     img1 = frames[0]
     img2 = frames[2]
 
-    imgs = np.stack((img1,img2), 0)
+    imgs = np.stack((img1, img2), 0)
     print(imgs.shape)
-    print("meow")
 
-    inputs = Variable( torch.from_numpy(imgs).type(dtype))
+    inputs = Variable(torch.from_numpy(imgs).type(dtype))
     outputs = fup(inputs)
-    print(outputs)
+    print(outputs.size())
+    img_out = outputs.data.numpy()[0]
+    print(img_out.shape, img1.shape)
+    cv2.imshow("Output", img_out)
+    cv2.waitKey(-1)
+
 
 
 class FPS_UP(nn.Module):
@@ -46,15 +50,14 @@ class FPS_UP(nn.Module):
         self.deConv = nn.ConvTranspose2d(2 * self.k, 3, self.d)
 
     def forward(self, imgs):
-
         img1 = imgs[0].view(1, 3, self.img_height, self.img_width)
         img2 = imgs[1].view(1, 3, self.img_height, self.img_width)
         c1 = self.conv1(img1)
         c2 = self.conv2(img2)
-        a = torch.stack((c1, c2), 1)
-        print(a.size())
-        imgOut = self.deConv(a)
-        return imgOut
+        a = torch.cat((c1, c2), 1)
+        img_out = self.deConv(a)
+        return img_out
+
 
 def get_video_frames(file_name):
     cap = cv2.VideoCapture(file_name)
@@ -67,6 +70,7 @@ def get_video_frames(file_name):
         r, frame = cap.read()
 
     return frames
+
 
 if __name__ == '__main__':
     main()
