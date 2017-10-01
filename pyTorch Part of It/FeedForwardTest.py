@@ -16,7 +16,7 @@ def main():
 
     input_size = 2
     output_size = 1
-    gpu_enabled = True
+    gpu_enabled = False
 
     num_examples = 5000
     num_train = num_examples / 2

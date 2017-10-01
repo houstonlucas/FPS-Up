@@ -2,7 +2,7 @@ import cv2
 import numpy as np
 
 def main():
-    frames = getVideoFrames("small.mp4")
+    frames = getVideoFrames("../small.mp4")
     print(len(frames))
 
 def getVideoFrames(file_name):
