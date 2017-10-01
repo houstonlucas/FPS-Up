@@ -21,12 +21,12 @@ def main():
     img2 = frames[2]
 
     imgs = np.stack((img1, img2), 0)
-    print(imgs.shape)
+    print(imgs.dtype)
 
     inputs = Variable(torch.from_numpy(imgs).type(dtype))
     outputs = fup(inputs)
     print(outputs.size())
-    img_out = outputs.data.numpy()[0]
+    img_out = outputs.data.numpy()[0].reshape(h, w, 3)
     print(img_out.shape, img1.shape)
     cv2.imshow("Output", img_out)
     cv2.waitKey(-1)
