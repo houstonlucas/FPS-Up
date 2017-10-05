@@ -21,10 +21,6 @@ def main():
     if gpu_enabled:
         fup.cuda()
 
-
-    loss_fun = nn.MSELoss()
-    optimizer = torch.optim.SGD(net.parameters(), lr=0.0001)
-
     generator = training_data_generator(frames)
 
     inputs, expected_out = next(generator)
@@ -75,10 +71,10 @@ class FPS_UP(nn.Module):
         img_out = img_out.squeeze(0).permute(1, 2, 0)
         return img_out
 
-    def train(self, frames):
+    def train(self, train_data):
         #TODO: pull inputs and targets from frames
-        inputs = []
-        targets = []
+
+        inputs, targets = train_data
 
         num_epochs = 1000
 
