@@ -15,26 +15,20 @@ def main():
     h, w, _ = frames[0].shape
     fup = FPS_UP(h, w)
 
-    dtype = torch.FloatTensor
+    generator = training_data_generator(frames)
 
-    img1 = frames[0]
-    img2 = frames[2]
+    inputs, expected_out = next(generator)
 
-    # Format the images to be a 2xhxw ndarray
-    imgs = np.stack((img1, img2), 0)
-
-    # Convert the images into a torch Tensor
-    inputs = Variable(torch.from_numpy(imgs).type(dtype))
+    target = to_numpy(expected_out)
 
     # Push the images through the network
-    outputs = fup(inputs)
-    print("Output size: " + str(outputs.size()))
-    img_out = outputs.data.numpy()
-    cv2.imshow("img1", img1)
-    cv2.imshow("img2", img2)
-    cv2.imshow("Output", img_out.astype(np.uint8))
-    cv2.waitKey(-1)
+    output = fup(inputs)
 
+    img_out = to_numpy(output)
+
+    cv2.imshow("Target", target)
+    cv2.imshow("Output", img_out)
+    cv2.waitKey(-1)
 
 
 class FPS_UP(nn.Module):
@@ -61,9 +55,7 @@ class FPS_UP(nn.Module):
         c2 = self.conv2(img2)
         a = torch.cat((c1, c2), 1)
         img_out = self.deConv(a)
-        img_out = img_out.squeeze(0).permute(1,2,0)
-        print("img_out size (inNet)", img_out.size())
-
+        img_out = img_out.squeeze(0).permute(1, 2, 0)
         return img_out
 
 
@@ -78,6 +70,27 @@ def get_video_frames(file_name):
         r, frame = cap.read()
 
     return frames
+
+
+# Generator for producing training examples
+def training_data_generator(frames):
+    n = len(frames)
+    for i in range(n - 3):
+        A, B, C = frames[i:i + 3]
+        numpy_pair = np.stack((A, C), 0)
+        torch_pair = to_torch_variable(numpy_pair)
+        target = to_torch_variable(B)
+        yield torch_pair, target
+
+
+# Converts a numpy ndarray to a torch variable
+def to_torch_variable(nump, torchType=torch.FloatTensor):
+    return Variable(torch.from_numpy(nump).type(torchType))
+
+
+# Converts pytorch vars to the numpy format wanted.
+def to_numpy(var, dtype=np.uint8):
+    return var.data.numpy().astype(dtype)
 
 
 if __name__ == '__main__':
